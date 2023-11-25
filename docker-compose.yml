@@ -1,0 +1,67 @@
+version: '3.1'
+
+networks:
+  reseauxazdine:
+    driver: bridge
+
+services:
+  ihm_studentlist:
+    image:  php:apache
+    container_name: ihm_azdine
+    restart: always
+    environment:
+      USERNAME: toto
+      PASSWORD: python  
+    volumes: 
+      - ./website/:/var/www/html
+    depends_on: 
+      - api_azdine
+    ports:
+      - 2500:80
+    networks:
+      - reseauxazdine
+
+
+
+
+  api_azdine:
+    image: apitag1
+    container_name: container_api
+    restart: always
+#    ports:
+#      - 1997:5000
+    volumes: 
+      - ./simple_api/student_age.json:/data/student_age.json
+
+    networks:
+      - reseauxazdine
+
+  registre:
+    image:  registry:2
+    container_name: registry
+    restart: always
+    ports:
+      - 2600:5000
+    networks:
+      - reseauxazdine
+  regisstry-ui:
+    image: joxit/docker-registry-ui:main
+    restart: always
+    ports:
+      - 2280:80
+    environment:
+      - SINGLE_REGISTRY=true
+      - REGISTRY_TITLE=Docker Registry UI
+      - DELETE_IMAGES=true
+      - SHOW_CONTENT_DIGEST=true
+      - NGINX_PROXY_PASS_URL=http://registry:5000
+      - SHOW_CATALOG_NB_TAGS=true
+      - CATALOG_MIN_BRANCHES=1
+      - CATALOG_MAX_BRANCHES=1
+      - TAGLIST_PAGE_SIZE=100
+      - REGISTRY_SECURED=false
+      - CATALOG_ELEMENTS_LIMIT=1000
+    container_name: registry-ui
+    networks:
+      - reseauxazdine
+
